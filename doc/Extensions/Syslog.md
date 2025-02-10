@@ -393,51 +393,79 @@ You will need to download and install "Datagram-Syslog Agent" for this how to
 ## External hooks
 
 Trigger external scripts based on specific syslog patterns being
-matched with syslog hooks. Add the following to your LibreNMS
-`config.php` to enable hooks:
+matched with syslog hooks. Preferably, use the lnms commands to enable the feature globally via a database setting. 
+Or add the following php config setting to your LibreNMS `config.php` to enable hooks:
 
 ```ssh
+lnms config:set enable_syslog_hooks true
+```
+
+```php
 $config['enable_syslog_hooks'] = 1;
 ```
 
 The below are some example hooks to call an external script in the
 event of a configuration change on Cisco ASA, IOS, NX-OS and IOS-XR
-devices. Add to your `config.php` file to enable.
+devices. Use the lnms commands or add to your `config.php` file to enable.
 
-### Cisco ASA
+Resetting these values with lnms is done by omitting any configuration and accepting the prompt.
 
 ```ssh
-$config['os']['asa']['syslog_hook'][] = Array('regex' => '/%ASA-(config-)?5-111005/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+lnms config:set os.nxos.syslog_hook
+
+Reset os.nxos.syslog_hook to the default? (yes/no) [no]:
+> 
 ```
+
+### LNMS Commands
+
+```ssh
+### Cisco ASA
+lnms config:set lnms config:set os.asa.syslog_hook '[{"regex": "/%ASA-(config-)?5-111005/", "script": "/opt/librenms/scripts/syslog-notify-oxidized.php"}]'
 
 ### Cisco IOS
-
-```ssh
-$config['os']['ios']['syslog_hook'][] = Array('regex' => '/%SYS-(SW[0-9]+-)?5-CONFIG_I/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
-```
+lnms config:set os.ios.syslog_hook '[{"regex": "/%SYS-(SW[0-9]+-)?5-CONFIG_I/", "script": "/opt/librenms/scripts/syslog-notify-oxidized.php"}]'
 
 ### Cisco NXOS
-
-```ssh
-$config['os']['nxos']['syslog_hook'][] = Array('regex' => '/%VSHD-5-VSHD_SYSLOG_CONFIG_I/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
-```
+lnms config:set os.ios.syslog_hook '[{"regex": "/%SYS-(SW[0-9]+-)?5-CONFIG_I/", "script": "/opt/librenms/scripts/syslog-notify-oxidized.php"}]'
 
 ### Cisco IOSXR
-
-```ssh
-$config['os']['iosxr']['syslog_hook'][] = Array('regex' => '/%GBL-CONFIG-6-DB_COMMIT/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
-```
+lnms config:set os.iosxr.syslog_hook '[{"regex": "/%GBL-CONFIG-6-DB_COMMIT/", "script": "/opt/librenms/scripts/syslog-notify-oxidized.php"}]'
 
 ### Juniper Junos
-
-```ssh
-$config['os']['junos']['syslog_hook'][] = Array('regex' => '/UI_COMMIT:/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
-```
+lnms config:set os.junos.syslog_hook '[{"regex": "/UI_COMMIT:/", "script": "/opt/librenms/scripts/syslog-notify-oxidized.php"}]'
 
 ### Juniper ScreenOS
+lnms config:set os.screenos.syslog_hook '[{"regex": "/System configuration saved/", "script": "/opt/librenms/scripts/syslog-notify-oxidized.php"}]'
 
-```ssh
+### HPE/Aruba Procurve
+lnms config:set os.procurve.syslog_hook '[{"regex": "/Running Config Change/", "script": "/opt/librenms/scripts/syslog-notify-oxidized.php"}]'
+```
+
+### Config.php
+
+```php
+### Cisco ASA
+$config['os']['asa']['syslog_hook'][] = Array('regex' => '/%ASA-(config-)?5-111005/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+
+### Cisco IOS
+$config['os']['ios']['syslog_hook'][] = Array('regex' => '/%SYS-(SW[0-9]+-)?5-CONFIG_I/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+
+### Cisco NXOS
+$config['os']['nxos']['syslog_hook'][] = Array('regex' => '/%VSHD-5-VSHD_SYSLOG_CONFIG_I/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+
+### Cisco IOSXR
+$config['os']['iosxr']['syslog_hook'][] = Array('regex' => '/%GBL-CONFIG-6-DB_COMMIT/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+
+### Juniper Junos
+$config['os']['junos']['syslog_hook'][] = Array('regex' => '/UI_COMMIT:/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+
+### Juniper ScreenOS
 $config['os']['screenos']['syslog_hook'][] = Array('regex' => '/System configuration saved/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+
+### HPE/Aruba Procurve
+$config['os']['procurve']['syslog_hook'][] = Array('regex' => '/Running Config Change/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+
 ```
 
 ### Allied Telesis Alliedware Plus
@@ -448,20 +476,21 @@ configuration. This is to ensure the syslog hook log message gets sent
 to the syslog server.
 
 ```ssh
-$config['os']['awplus']['syslog_hook'][] = Array('regex' => '/IMI.+.Startup-config saved on/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+lnms config:set os.awplus.syslog_hook '[{"regex": "/IMI.+.Startup-config saved on/", "script": "/opt/librenms/scripts/syslog-notify-oxidized.php"}]'
 ```
-    
-### HPE/Aruba Procurve
 
-```ssh
-$config['os']['procurve']['syslog_hook'][] = Array('regex' => '/Running Config Change/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
+```php
+$config['os']['awplus']['syslog_hook'][] = Array('regex' => '/IMI.+.Startup-config saved on/', 'script' => '/opt/librenms/scripts/syslog-notify-oxidized.php');
 ```
 
 ## Configuration Options
 ### Syslog Clean Up
 
-Can be set inside of  `config.php`
+Can be set using lnms or inside of `config.php`
 
+```ssh
+lnms config:set syslog_purge 30
+```
 ```php
 $config['syslog_purge'] = 30;
 ```
@@ -485,6 +514,9 @@ associated with the correct device.
 Example:
 
 ```ssh
+lnms config:set syslog_xlate '{"loopback0.core7k1.noc.net": "n7k1-core7k1", "loopback0.core7k2.noc.net": "n7k2-core7k2"}'
+```
+```php
 $config['syslog_xlate'] = array(
         'loopback0.core7k1.noc.net' => 'n7k1-core7k1',
         'loopback0.core7k2.noc.net' => 'n7k2-core7k2'
